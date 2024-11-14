@@ -31,13 +31,13 @@
             <ul>
               <li
                 v-for="(subtask, subIndex) in task.subtasks"
-                :key="subtask.id"
+                :key="subIndex.id"
               >
                 {{ subtask }}
                 <!-- index of  main task  -->
                 <button
                   class="btn btn-danger btn-sm my-2"
-                  @click="deleteSubtask(mainindex, subIndex)"
+                  @click="deleteSubtask(index, subIndex)"
                 >
                   Delete Subtask
                 </button>
@@ -65,35 +65,48 @@
 export default {
   data() {
     return {
-      tasks: [
-        { name: "Go to Shop", subtasks: ["Buy Apples", " Buy Mango"] },
-        { name: "Go To Office", subtasks: ["Complete Task"] },
-      ],
-
+      tasks: [],
       newTask: "",
     };
   },
+  created() {
+    /// when create then load task
+
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      this.tasks = JSON.parse(savedTasks);
+    }
+  },
   methods: {
+    saveTasks() {
+      // in localStorage save tasks
+      localStorage.setItem("tasks", JSON.stringify(this.tasks));
+    },
+
     addTask() {
       if (this.newTask.trim()) {
         this.tasks.push({ name: this.newTask, subtasks: [] });
         this.newTask = "";
+        this.saveTasks();
       }
     },
 
     deleteTask(index) {
       this.tasks.splice(index, 1);
+      this.saveTasks();
     },
 
     addSubtask(subindex) {
       const subtaskName = prompt("Enter subtask name:");
       if (subtaskName) {
         this.tasks[subindex].subtasks.push(subtaskName);
+        this.saveTasks();
       }
     },
 
     deleteSubtask(mainIndex, subIndex) {
       this.tasks[mainIndex].subtasks.splice(subIndex, 1);
+      this.saveTasks();
     },
   },
 };
